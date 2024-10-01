@@ -8,11 +8,12 @@ print(df.head())
 
 #%%
 
+
 cip_codes = df['C2023_A.CIP Code -  2020 Classification'].apply(lambda x: (''.join(filter(str.isdigit, x))))
 df['CIP_Code'] = cip_codes
 
 #%%
-soc_crosswalk = pd.read_excel('data/CIP2020_SOC2018_Crosswalk.xlsx', sheet_name='CIP-SOC', converters={'CIP2020Code':str, 'SOC2018Code':str})
+soc_crosswalk = pd.read_excel('data/cip_soc_crosswalk.xlsx', sheet_name='CIP-SOC', converters={'CIP2020Code':str, 'SOC2018Code':str})
 print(soc_crosswalk.head())
 
 #%%
@@ -47,7 +48,7 @@ data.head()
 
 #%%
 
-ipeds = pd.read_csv('../data/Data_9-3-2024---746.csv')
+ipeds = pd.read_csv('../data/ipeds_data.csv')
 ipeds.head()
 
 ipeds = ipeds.iloc[:,0:102]
