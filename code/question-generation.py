@@ -1,12 +1,10 @@
 #%%
-from huggingface_hub import login
-login()
-
-#%%
 from langchain_community.document_loaders import CSVLoader
 from tqdm import tqdm
 import pandas as pd
 import random
+from huggingface_hub import InferenceClient
+import json
 
 loader = CSVLoader(file_path='./data/final_p1.csv',
     csv_args={
@@ -31,9 +29,6 @@ for doc in tqdm(docs_lazy_bls):
     docs.append(doc)
 
 #%%
-from huggingface_hub import InferenceClient
-import json
-
 repo_id = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
 llm_client = InferenceClient(
@@ -101,9 +96,3 @@ for sampled_context in tqdm(random.sample(docs, N_GENERATIONS)):
 
 print(pd.DataFrame(outputs).head(1))
 
-#%%
-# from langchain_community.vectorstores import DuckDB
-# from langchain_openai import OpenAIEmbeddings
-#
-# embeddings = OpenAIEmbeddings()
-# database = DuckDB.from_documents(docs, embeddings)
