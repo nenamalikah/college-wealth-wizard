@@ -6,7 +6,7 @@ import random
 from huggingface_hub import InferenceClient
 import json
 
-loader = CSVLoader(file_path='./data/final_p1.csv',
+loader = CSVLoader(file_path='../data/final_p1.csv',
     csv_args={
     'delimiter': ',',
     })
@@ -18,7 +18,7 @@ for doc in tqdm(docs_lazy):
     docs.append(doc)
 
 #%%
-loader_bls = CSVLoader(file_path='./data/final_p2.csv',
+loader_bls = CSVLoader(file_path='../data/final_p2.csv',
     csv_args={
     'delimiter': ',',
     })
@@ -70,7 +70,7 @@ Output:::"""
 
 #%%
 
-N_GENERATIONS = 5  # We intentionally generate only 10 QA couples here for cost and time considerations
+N_GENERATIONS = 100  # We intentionally generate only 10 QA couples here for cost and time considerations
 
 print(f"Generating {N_GENERATIONS} QA couples...")
 
@@ -94,5 +94,7 @@ for sampled_context in tqdm(random.sample(docs, N_GENERATIONS)):
         continue
 
 
-print(pd.DataFrame(outputs).head(1))
-
+print(outputs)
+#%%
+outputs_df = pd.DataFrame(outputs)
+outputs_df.to_csv('Sample_RAG_Validation_Set.csv')

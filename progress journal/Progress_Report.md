@@ -31,9 +31,32 @@ https://www.markdownguide.org/cheat-sheet/
 
 - Action Items:
 
-* [ ] Upgrade type of AWS instance 
-* [ ] Merge and finalize data for CIP-SOC database (RAG Agent)
+* [x] Upgrade type of AWS instance 
+* [x] Merge and finalize data for CIP-SOC database (RAG Agent)
 * [ ] Create validation dataset with ChatGPT (RAG Agent)
 * [ ] Generate initial accuracy metrics of RAG Agent with validation dataset
-* [ ] Decide vector store and write code for the vector store
+* [x] Decide vector store and write code for the vector store
 * [ ] Decide which LLM to use and write the code 
+
+### Date: october 8 2024 
+- Topics of discussion
+    - Code retrieval success rate for DuckDB (Test 100 samples)
+    - Test generation after code retrieval 
+    - Check embeddings from HuggingFace instead of OpenAI
+    - Read about RAG for Related Work in Report
+  
+
+- Notes
+  - The code for the vector store and the RAG validation dataset with a sample of the CIP-SOC data was developed
+  - A larger AWS instance was developed to create the full vector store and generate a larger RAG validation dataset
+
+
+- Action Items:
+
+* [ ] Create validation dataset with ChatGPT (RAG Agent)
+* [ ] Generate initial accuracy metrics of RAG Agent with validation dataset
+* [ ] Decide which LLM to use and write the code 
+* [ ] Generate code retrieval success rate for DuckDB
+* [ ] Read about RAG for Related Work in Report
+* [ ] Change embeddings for vector store to something from Hugging Face
+* [ ] Clean up scripts and add testing scripts for every module (retrieval, LLM, and embeddings)
