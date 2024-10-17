@@ -56,7 +56,32 @@ https://www.markdownguide.org/cheat-sheet/
 * [ ] Create validation dataset with ChatGPT (RAG Agent)
 * [ ] Generate initial accuracy metrics of RAG Agent with validation dataset
 * [ ] Decide which LLM to use and write the code 
-* [ ] Generate code retrieval success rate for DuckDB
+* [x] Generate code retrieval success rate for DuckDB
 * [ ] Read about RAG for Related Work in Report
-* [ ] Change embeddings for vector store to something from Hugging Face
+* [x] Change embeddings for vector store to something from Hugging Face
+* [ ] Clean up scripts and add testing scripts for every module (retrieval, LLM, and embeddings)
+
+### Date: october 17 2024 
+- Topics of discussion
+  - Chroma vector store upload speed
+  - RAG Chain with mistralai
+  
+
+- Notes
+  - I switched the embedding model from OpenAI to HuggingFace
+  - I also switched the vector store from DuckDB to Chroma 
+  - I was able to get initial metrics for the Chroma vector store code retrieval and it was highly successful
+  - I was able to add all of the BLS data to the vector store and create a RAG chain using mistralai
+  - I have only added a sample of the IPEDS data to the vector store. The IPEDs document object is very large and takes a while to be added
+    - In order to speed up the process, I eliminated unnecessary columns and combined similar columns.
+    - I have also tried asynchronous batch uploading to speed up the process. To date, it still takes ~3 hours
+ 
+
+
+- Action Items:
+
+* [ ] Create validation dataset with ChatGPT (RAG Agent)
+* [ ] Generate initial accuracy metrics of RAG Agent with validation dataset
+* [x] Decide which LLM to use and write the code 
+* [ ] Read about RAG for Related Work in Report
 * [ ] Clean up scripts and add testing scripts for every module (retrieval, LLM, and embeddings)
