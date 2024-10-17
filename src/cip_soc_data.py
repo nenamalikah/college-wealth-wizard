@@ -1,8 +1,9 @@
 #%%
 import pandas as pd
 
+#%%
 # CIP Code to SOC: One to many
-df = pd.read_csv('../data/cip_university_options.csv')
+df = pd.read_csv('./data/cip_university_options.csv')
 print(df.head())
 
 #%%
@@ -12,7 +13,7 @@ df['CIP_Code'] = cip_codes
 
 #%%
 # Load and clean the CIP and SOC codes in the crosswalk file
-soc_crosswalk = pd.read_excel('../data/cip_soc_crosswalk.xlsx', sheet_name='CIP-SOC', converters={'CIP2020Code':str, 'SOC2018Code':str})
+soc_crosswalk = pd.read_excel('./data/cip_soc_crosswalk.xlsx', sheet_name='CIP-SOC', converters={'CIP2020Code':str, 'SOC2018Code':str})
 
 crosswalk_cip_codes = soc_crosswalk['CIP2020Code'].apply(lambda x: (''.join(filter(str.isdigit, x))))
 crosswalk_soc_codes = soc_crosswalk['SOC2018Code'].apply(lambda x: (''.join(filter(str.isdigit, x))))
@@ -30,7 +31,7 @@ print(cip_soc_data.head())
 
 #%%
 # Load the CIP descriptions file and clean its codes
-cip_desc = pd.read_csv('../data/CIPCode_Descriptions.csv')
+cip_desc = pd.read_csv('./data/CIPCode_Descriptions.csv')
 cip_desc_codes = cip_desc['CIPCode'].apply(lambda x: (''.join(filter(str.isdigit, x))))
 cip_desc['CIP_Code'] = cip_desc_codes
 
@@ -41,19 +42,26 @@ cip_soc_data.head()
 
 #%%
 # Load the ipeds data
-ipeds = pd.read_csv('../data/ipeds_data.csv')
+ipeds = pd.read_csv('./data/ipeds_data.csv')
 ipeds.head()
 ipeds = ipeds.iloc[:,0:102]
 
 #%%
 cip_soc_data.rename(columns={'unitid':'UnitID'},inplace=True)
 data = cip_soc_data.merge(ipeds,how='inner',on='UnitID')
+data.sort_values('SOC_Code',inplace=True)
+data.to_csv('./data/final_p1.csv')
+print(data.shape)
 
 #%%
-bls = pd.read_csv('../data/bls_data.csv')
+bls = pd.read_csv('./data/bls_data.csv')
 bls['SOC_Code'] = bls['OCC_CODE'].apply(lambda x: (''.join(filter(str.isdigit, x))))
-print(bls.shape)
+bls.to_csv('./data/final_p2.csv')
+
 #%%
-data = data.merge(bls,on='SOC_Code',how='inner')
-data.to_csv('../data/college_wealth_data.csv')
-print('Merging complete!')
+bls_dask = dataframe.from_pandas(bls,npartitions=6)
+
+#%%
+final_data = dataframe.merge(left=data,right=bls_dask,on='SOC_Code',how='inner')
+final_data.shape
+#%%
