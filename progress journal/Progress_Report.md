@@ -85,3 +85,19 @@ https://www.markdownguide.org/cheat-sheet/
 * [x] Decide which LLM to use and write the code 
 * [ ] Read about RAG for Related Work in Report
 * [ ] Clean up scripts and add testing scripts for every module (retrieval, LLM, and embeddings)
+
+### Date: october 22 2024 
+- Topics of discussion
+  - RAG retrieval metrics
+  
+
+- Notes
+  - In addition to generating accuracy metrics for RAG retrievals, we also discussed providing wrong answers to the LLM and ensuring it generates answers from the vector stores and not itself
+
+- Action Items:
+
+* [x] Create validation datasets for IPEDs, BLS, and CIP_SOC crosswalk files
+* [ ] Generate accuracy metrics of RAG with validation datasets
+* [ ] Test that generated answers from LLM are from vector stores and not LLM itself
+* [ ] Read about RAG for Related Work in Report
+* [ ] Clean up scripts and add testing scripts for every module (retrieval, LLM, and embeddings)
