@@ -89,7 +89,6 @@ https://www.markdownguide.org/cheat-sheet/
 ### Date: october 22 2024 
 - Topics of discussion
   - RAG retrieval metrics
-  
 
 - Notes
   - In addition to generating accuracy metrics for RAG retrievals, we also discussed providing wrong answers to the LLM and ensuring it generates answers from the vector stores and not itself
@@ -98,6 +97,26 @@ https://www.markdownguide.org/cheat-sheet/
 
 * [x] Create validation datasets for IPEDs, BLS, and CIP_SOC crosswalk files
 * [ ] Generate accuracy metrics of RAG with validation datasets
+* [ ] Test that generated answers from LLM are from vector stores and not LLM itself
+* [ ] Read about RAG for Related Work in Report
+* [ ] Clean up scripts and add testing scripts for every module (retrieval, LLM, and embeddings)
+
+### Date: october 29 2024 
+- Topics of discussion
+  - RAG retrieval metrics
+  - Test scripts
+
+- Notes
+  - Initial accuracy metrics were 18% for BLS dataset, 64% for IPEDs dataset, and 33% for CIP-SOC association dataset when retrieving 5 documents per query
+  - When retrieving 10 documents to query, the respective metrics were 19% for BLS, 64% for IPEDs, and 41%  for XWalk
+  - I analyzed the results and figured out the BLS data was duplicated on several columns that were dropped. I reprocessed this data as well as the CIP-SOC association dataset. 
+  - After calculating the average length of each document, changing the chunking size, and changing the embedding model to 'BAAI/bge-large-en-v1.5', I received accuracy scores of 100, 100, 96 on random samples of 25 from the BLS, IPEDs, and CIP-SOC dataset respectively. 
+  - I added a test script for calculating the accuracy of retrieval from the vector store 
+
+- Action Items:
+
+* [x] Create validation datasets for IPEDs, BLS, and CIP_SOC crosswalk files
+* [x] Generate accuracy metrics of RAG with validation datasets
 * [ ] Test that generated answers from LLM are from vector stores and not LLM itself
 * [ ] Read about RAG for Related Work in Report
 * [ ] Clean up scripts and add testing scripts for every module (retrieval, LLM, and embeddings)
