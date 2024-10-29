@@ -1,6 +1,6 @@
 # College Wealth Wizard
 
-The College Wealth Wizard is a Multi-Agent LLM System. The Wizard is intended for use by current and prospective college students, college graduates considering a career change, as well as college advisors providing advice and counseling to their students. The objective of the Wizard is to give users a transparent idea of how much they will pay for college and how much they can expect to make in their current or prospective career. The Wizard presents information in new ways, such as major-university combinations with net positive and net negative investments, as well as college rankings for the highest paying major-career combinations.  
+The College Wealth Wizard is a Multi-Agent LLM System. The Wizard is intended for use by current and prospective college students, college graduates considering a career change, as well as college advisors providing advice or counseling to their students. The objective of the Wizard is to give users a transparent idea of how much they will pay for college and how much they can expect to make in their current or prospective career. The Wizard presents information in new ways, such as major-university combinations with net positive and net negative investments, as well as college rankings for the highest paying major-career combinations.  
 
 ![CWW_Diagram.png](data%2FCWW_Diagram.png)
 
