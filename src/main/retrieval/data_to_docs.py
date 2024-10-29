@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 
 sys.path.append('../../')
-from components.RAG.generate_documents import doc_gen_list
+from components.preprocess.generate_documents import doc_gen_list
 
 #%%
 ipeds_fp = '../../../data/educational_institution_information.csv'

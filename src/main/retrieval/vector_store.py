@@ -3,8 +3,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 import random
 
 sys.path.append('../../')
-from components.RAG.generate_documents import load_documents
-from components.RAG.generate_vector_store import create_vector_store
+from components.preprocess.generate_documents import load_documents
+from components.retrieval.generate_vector_store import create_vector_store
 #%%
 # Load IPEDs and BLS Document Objects
 

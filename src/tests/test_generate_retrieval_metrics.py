@@ -1,8 +1,8 @@
 #%%
 import pandas as pd
-import sy
+import sys
 sys.path.append('../')
-from RAG.components.generate_retrieval_metrics import retrieval_accuracy
+from components.RAG.generate_retrieval_metrics import retrieval_accuracy
 #%%
 
 def test_langchain_rag(test_cases):
@@ -14,8 +14,11 @@ def test_langchain_rag(test_cases):
 
 #%%
 if __name__ == '__main__':
-    comparison_fp = '../../data/retrieval_results/accuracy_retrieval_bls.xlsx'
-    # retrieval_accuracy(validation_questions_fp, retrieval_fp, comparison_fp)
+    comparison_fp = '../../data/retrieval_results/tests/accuracy_retrieval_bls_test.xlsx'
+    validation_questions_fp = '../../data/retrieval_results/bls_qa_questions.xlsx'
+    retrieval_fp = '../../data/retrieval_results/bls_retrieval.xlsx'
+
+    retrieval_accuracy(validation_questions_fp, retrieval_fp, comparison_fp)
 
     results = pd.read_excel(comparison_fp)
     print(results.columns)

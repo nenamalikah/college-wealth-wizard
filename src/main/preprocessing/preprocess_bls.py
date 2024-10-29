@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 
 sys.path.append('../../')
-from components.RAG.preprocess import clean_cip_soc_code
+from components.preprocess.data_processing import clean_cip_soc_code
 
 #  AVERAGE LENGTH OF TEXT IN BLS: 524.8323391193553
 #%%
