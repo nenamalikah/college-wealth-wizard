@@ -6,7 +6,7 @@ from langchain_text_splitters import CharacterTextSplitter
 from langchain_core.documents import Document
 
 #%%
-def doc_gen_list(text_list,doc_source,splitter='CharacterTextSplitter',chunk_size=150,chunk_overlap=50,output='Generate',document_obj_fp=None):
+def doc_gen_list(text_list,doc_source,sep='.',splitter='CharacterTextSplitter',chunk_size=150,chunk_overlap=50,output='Generate',document_obj_fp=None):
     """
         The following function generates langchain document objects from a list of python strings.
 
@@ -33,7 +33,7 @@ def doc_gen_list(text_list,doc_source,splitter='CharacterTextSplitter',chunk_siz
         i += 1
 
     if splitter == 'CharacterTextSplitter':
-        chunker = CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap, separator='.')
+        chunker = CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap, separator=sep)
         chunked_docs = chunker.split_documents(docs)
 
     elif splitter == 'RecursiveCharacterTextSplitter':
@@ -52,7 +52,7 @@ def doc_gen_list(text_list,doc_source,splitter='CharacterTextSplitter',chunk_siz
 
 
 #%%
-def doc_gen_csv(csv_fp,chunk_size=150,chunk_overlap=50,splitter='CharacterTextSplitter',output='Generate',document_obj_fp=None):
+def doc_gen_csv(csv_fp,sep='.',chunk_size=150,chunk_overlap=50,splitter='CharacterTextSplitter',output='Generate',document_obj_fp=None):
     """
         The following function generates langchain document objects from a csv file.
 
@@ -81,7 +81,7 @@ def doc_gen_csv(csv_fp,chunk_size=150,chunk_overlap=50,splitter='CharacterTextSp
         docs.append(doc)
 
     if splitter == 'CharacterTextSplitter':
-        chunker = CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap, separator='.')
+        chunker = CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap, separator=sep)
         chunked_docs = chunker.split_documents(docs)
 
     elif splitter == 'RecursiveCharacterTextSplitter':

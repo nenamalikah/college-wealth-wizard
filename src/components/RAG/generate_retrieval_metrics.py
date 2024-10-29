@@ -19,7 +19,7 @@ def retrieval_accuracy(validation_questions_fp, retrieval_fp, comparison_fp):
     print(f'The columns in the validation dataset are: {validation_df.columns}. \n The shape of the validation dataset is: {validation_df.shape}.')
 
     retrieval_df = pd.read_excel(retrieval_fp)
-    retrieval_df = retrieval_df.groupby(by='question')[['source_doc','kth_document']].agg(list).reset_index()
+    retrieval_df = retrieval_df.groupby(by='question')[['source_doc','kth_document', 'context']].agg(list).reset_index()
     print(f'The columns in the retrieval dataset are {retrieval_df.columns}. \n The shape of the retrieval dataset is: {retrieval_df.shape}')
 
     comparison = retrieval_df.merge(validation_df, how='left', on='question', suffixes=('_rtrv','_vld'))
@@ -44,9 +44,9 @@ def retrieval_accuracy(validation_questions_fp, retrieval_fp, comparison_fp):
     print(f'The comparison has been saved to {comparison_fp}')
 
 #%%
-# if __name__ == '__main__':
-#     validation_questions_fp = '../../data/retrieval_results/bls_qa_questions.xlsx'
-#     retrieval_fp = '../../data/retrieval_results/test_vstore_retrieval_bls.xlsx'
-#
-#     retrieval_accuracy(validation_questions_fp=validation_questions_fp, retrieval_fp=retrieval_fp,
-#                        comparison_fp= '../../data/retrieval_results/accuracy_retrieval_bls.xlsx')
+if __name__ == '__main__':
+    validation_questions_fp = '../../../data/retrieval_results/bls_qa_questions.xlsx'
+    retrieval_fp = '../../../data/retrieval_results/test_vstore_retrieval_bls.xlsx'
+
+    retrieval_accuracy(validation_questions_fp=validation_questions_fp, retrieval_fp=retrieval_fp,
+                       comparison_fp= '../../../data/retrieval_results/accuracy_retrieval_bls.xlsx')
