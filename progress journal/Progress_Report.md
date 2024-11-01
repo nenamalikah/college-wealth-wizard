@@ -120,3 +120,11 @@ https://www.markdownguide.org/cheat-sheet/
 * [ ] Test that generated answers from LLM are from vector stores and not LLM itself
 * [ ] Read about RAG for Related Work in Report
 * [ ] Clean up scripts and add testing scripts for every module (retrieval, LLM, and embeddings)
+
+### Date: october 29 2024 
+
+| Dataset | Description of Dataset | # of RAG Questions | Accuracy | 
+| ------------| ---------------------- |--------------------|----------| 
+| IPEDs | "Description here" | 100                | 95%      | 
+| BLS | "Description here" | 92                 | 96%      |
+| CIP-SOC Associations | "Description here" | 99                 | 96%      |
