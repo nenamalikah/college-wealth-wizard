@@ -40,9 +40,6 @@ def doc_gen_list(text_list,doc_source,sep='.',splitter='CharacterTextSplitter',c
         chunker = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
         chunked_docs = chunker.split_documents(docs)
 
-    print(f'\n Here is a sample doc: {chunked_docs[0]}')
-    print(f'\n Here is the next sample doc: {chunked_docs[1]}')
-
     if output=='Generate':
         return chunked_docs
     elif output=='Save':
@@ -119,7 +116,7 @@ if __name__ == '__main__':
     import pandas as pd
     csv_fp = '../../../data/soc_employment_information.csv'
     df = pd.read_csv(csv_fp, usecols=['Occupation_Summary'])
-    doc_gen_list(text_list=df['Occupation_Summary'][:10],
+    doc_gen_list(text_list=df['Occupation_Summary'][:3],
                  doc_source='BLS Employment Data',
                  output='Save',
                  document_obj_fp='../../../data/sample_data/bls_sample.csv')

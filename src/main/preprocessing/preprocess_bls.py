@@ -5,7 +5,7 @@ import sys
 sys.path.append('../../')
 from components.preprocess.data_processing import clean_cip_soc_code
 
-#  AVERAGE LENGTH OF TEXT IN BLS: 524.8323391193553
+#  AVERAGE LENGTH OF TEXT IN BLS: 481
 #%%
 # Read bls_data.csv
 bls = pd.read_csv('../../../data/bls_data.csv')
@@ -18,6 +18,7 @@ bls = bls[bls['O_GROUP']=='detailed']
 bls['SOC_Code'] = clean_cip_soc_code(df=bls,
                    column='OCC_CODE',
                    code_type='SOC')
+
 bls.drop(columns='OCC_CODE',inplace=True)
 
 bls.rename(columns={'OCC_TITLE':'SOC_Title',
@@ -57,37 +58,35 @@ dups_us = bls_us[bls_us.duplicated(subset=['NAICS','SOC_Title','Sector'],keep=Fa
 dups_us
 
 #%%
-# Filter the state-level dataframe so that metropolitan and non-metropolitan areas are used
-bls_other = bls_other[bls_other['AREA_TYPE'].isin([4,6])] # 185,951
-
-# Check the State-Level dataframe for duplicates
-dups_other = bls_other[bls_other.duplicated(subset=['NAICS','SOC_Title','Sector','AREA_TITLE'],keep=False)]
-dups_other.sort_values(['SOC_Title','NAICS_Industry_Title'],ascending=False,inplace=True)
-dups_other
-
-#%%
-
-
-bls_text = []
-for idx in bls_other.index:
-    bls_text.append(f'In the "{bls_other["NAICS_Industry_Title"][idx]}" industry and "{bls_other["Sector"][idx]}" sector, the mean hourly wage for a "{bls_other["SOC_Title"][idx]}" job in {bls_other["AREA_TITLE"][idx]} is {bls_other['Mean_Hourly_Wage'][idx]} and the mean annual wage is {bls_other['Mean_Annual_Wage'][idx]}. The total employment for the "{bls_other["SOC_Title"][idx]}" job in the "{bls_other["NAICS_Industry_Title"][idx]}" industry and "{bls_other["Sector"][idx]}" sector in {bls_other["AREA_TITLE"][idx]} is {bls_other["Total_Employment"][idx]}. The SOC code for the "{bls_other["SOC_Title"][idx]}" occupation is {bls_other["SOC_Code"][idx]}.')
-
-bls_other['Occupation_Summary'] = bls_text
+# # Filter the state-level dataframe so that metropolitan and non-metropolitan areas are used
+# bls_other = bls_other[bls_other['AREA_TYPE'] == 2] # 185,951
+#
+# # Check the State-Level dataframe for duplicates
+# dups_other = bls_other[bls_other.duplicated(subset=['NAICS','SOC_Title','Sector','AREA_TITLE'],keep=False)]
+# dups_other.sort_values(['SOC_Title','NAICS_Industry_Title'],ascending=False,inplace=True)
+# dups_other
+#
+# #%%
+# bls_text = []
+# for idx in bls_other.index:
+#     bls_text.append(f'In the "{bls_other["NAICS_Industry_Title"][idx]}" industry and "{bls_other["Sector"][idx]}" sector, the mean hourly wage for a "{bls_other["SOC_Title"][idx]}" job in {bls_other["AREA_TITLE"][idx]} is {bls_other['Mean_Hourly_Wage'][idx]} and the mean annual wage is {bls_other['Mean_Annual_Wage'][idx]}. The total employment for the "{bls_other["SOC_Title"][idx]}" job in the "{bls_other["NAICS_Industry_Title"][idx]}" industry and "{bls_other["Sector"][idx]}" sector in {bls_other["AREA_TITLE"][idx]} is {bls_other["Total_Employment"][idx]}. The SOC code for the "{bls_other["SOC_Title"][idx]}" occupation is {bls_other["SOC_Code"][idx]}.')
+#
+# bls_other['Occupation_Summary'] = bls_text
 
 #%%
 bls_text = []
 for idx in bls_us.index:
-    bls_text.append(f'In the "{bls_us["NAICS_Industry_Title"][idx]}" industry and "{bls_us["Sector"][idx]}" sector, the national mean hourly wage for a "{bls_us["SOC_Title"][idx]}" job is {bls_us['Mean_Hourly_Wage'][idx]} and the national mean annual wage is {bls_us['Mean_Annual_Wage'][idx]}. The total employment for the "{bls_us["SOC_Title"][idx]}" job in the "{bls_us["NAICS_Industry_Title"][idx]}" industry and "{bls_us["Sector"][idx]}" sector nationwide is {bls_us["Total_Employment"][idx]}. The SOC code for the "{bls_us["SOC_Title"][idx]}" occupation is {bls_us["SOC_Code"][idx]}.')
+    bls_text.append(f'Within the "{bls_us["NAICS_Industry_Title"][idx]}" industry and "{bls_us["Sector"][idx]}" sector, the national mean hourly wage for the "{bls_us["SOC_Title"][idx]}" occupation is {bls_us['Mean_Hourly_Wage'][idx]} and the national mean annual wage is {bls_us['Mean_Annual_Wage'][idx]}; The total employment nationwide is {bls_us["Total_Employment"][idx]} for the "{bls_us["SOC_Title"][idx]}" occupation in the "{bls_us["NAICS_Industry_Title"][idx]}" industry and "{bls_us["Sector"][idx]}" sector; The SOC code for the "{bls_us["SOC_Title"][idx]}" occupation is {bls_us["SOC_Code"][idx]};')
 
 bls_us['Occupation_Summary'] = bls_text
 #%%
-bls = pd.concat([bls_us,bls_other],ignore_index=True)
-print(f'BLS Shape {bls.shape}')
+# bls = pd.concat([bls_us,bls_other],ignore_index=True)
+print(f'BLS Shape {bls_us.shape}')
 print(f'Sample BLS text: {bls_text[-1]}')
 
 
-total_length = sum(len(text) for text in bls['Occupation_Summary'])
-average = total_length / len(bls['Occupation_Summary'])
+total_length = sum(len(text) for text in bls_us['Occupation_Summary'])
+average = total_length / len(bls_us['Occupation_Summary'])
 print(f'\n AVERAGE LENGTH OF TEXT IN BLS: {average}\n')
 
-# bls.to_csv('../../../data/soc_employment_information.csv',index=False)
+# bls_us.to_csv('../../../data/soc_employment_information.csv',index=False)
