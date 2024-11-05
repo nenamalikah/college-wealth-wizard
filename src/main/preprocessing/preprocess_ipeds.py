@@ -4,6 +4,7 @@ import sys
 sys.path.append('../../')
 from components.preprocess.data_processing import clean_cip_soc_code
 
+#   AVERAGE LENGTH OF TEXT IN SUMMARY: 6288.835001668335
 #%%
 #CIP University Options
 #unitid, institution name, C2023_A.CIP Code -  2020 Classification, CipTitle
@@ -32,7 +33,7 @@ cip_univ_opts.rename(columns={'unitid':'Unit_ID',
 
 options_list = []
 for idx in cip_univ_opts.index:
-    options_list.append(f'At "{cip_univ_opts["Institution_Name"][idx]}", the following CIP codes are offered: {cip_univ_opts["CIP_Codes_Offered_by_Inst"][idx]}. At "{cip_univ_opts["Institution_Name"][idx]}", the following CIP titles are offered: {cip_univ_opts["CIP_Titles_Offered_by_Inst"][idx]}')
+    options_list.append(f'At "{cip_univ_opts["Institution_Name"][idx]}", the following CIP codes are offered: {cip_univ_opts["CIP_Codes_Offered_by_Inst"][idx]}!! At "{cip_univ_opts["Institution_Name"][idx]}", the following CIP titles are offered: {cip_univ_opts["CIP_Titles_Offered_by_Inst"][idx]}!!')
 
 cip_univ_opts['Options_Summary'] = options_list
 print(f'The cip_univ_opts shape is {cip_univ_opts.shape}.')
@@ -49,13 +50,13 @@ payment = []
 
 for answer in list(df['Tuition payment plan (IC2023)']):
     if answer == 1:
-        payment.append('provided by the institution.')
+        payment.append('provided by the institution')
     elif answer == 0:
-        payment.append('not provided by the institution.')
+        payment.append('not provided by the institution')
     elif answer == -1:
-        payment.append('not reported.')
+        payment.append('not reported')
     elif answer == -2:
-        payment.append('not applicable.')
+        payment.append('not applicable')
     else:
         payment.append('not specified by the institution.')
 print(df['Tuition payment plan (IC2023)'].dtype)
@@ -67,15 +68,15 @@ df.rename(columns={'Institution provide nstitutionally-controlled housing (on-ca
 housing = []
 for answer in df['Institutionally-controlled housing']:
     if answer == 1:
-        housing.append('provided by the institution.')
+        housing.append('provided by the institution')
     elif answer == 2:
-        housing.append('not provided by the institution.')
+        housing.append('not provided by the institution')
     elif answer == -1:
-        housing.append('not reported.')
+        housing.append('not reported')
     elif answer == -2:
-        housing.append('not applicable.')
+        housing.append('not applicable')
     else:
-        housing.append('not reported.')
+        housing.append('not reported')
 df['Institutionally-controlled housing'] = housing
 
 #%%
@@ -86,20 +87,20 @@ plan_clean = []
 
 for answer in df['Alternative tuition plans']:
     if answer == 1:
-        plan_clean.append('provided by the institution.')
+        plan_clean.append('provided by the institution')
     elif answer == 2:
-        plan_clean.append('not provided by the institution.')
+        plan_clean.append('not provided by the institution')
     elif answer == -1:
-        plan_clean.append('not reported.')
+        plan_clean.append('not reported')
     elif answer == -2:
-        plan_clean.append('not applicable.')
+        plan_clean.append('not applicable')
     else:
-        plan_clean.append('not specified by the institution.')
+        plan_clean.append('not specified by the institution')
 
 df['Alternative tuition plans'] = plan_clean
 
 #%%
-df.fillna('unavailable.',inplace=True)
+df.fillna('unavailable',inplace=True)
 print(df.isna().sum())
 
 #%%
@@ -111,7 +112,7 @@ formatted_df = pd.DataFrame()
 for column in df.columns:
     if (column != "Institution Name") & (column != "UnitID"):  # Skip "Institution Name" itself for this operation
         formatted_df[column] = [
-            f"The {column.lower()} at {df['Institution Name'][idx]} is {df[column][idx]}"
+            f"The {column.lower()} at {df['Institution Name'][idx]} is {df[column][idx]}."
             for idx in df.index
         ]
 
@@ -219,16 +220,17 @@ print(formatted_df.isna().sum())
 #%%
 summary = []
 for idx in formatted_df.index:
-    summary.append(f'The tuition information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Tuition_Information"][idx]} The housing information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Housing_Information"][idx]} The expenses information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Expenses_Information"][idx]} The aid information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Aid_Information"][idx]} The application fee information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Application_Fee_Information"][idx]} The average net price information at "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Net_Price_Information"][idx]} {formatted_df['Options_Summary'][idx]} ')
+    summary.append(f'The tuition information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Tuition_Information"][idx]}!! The housing information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Housing_Information"][idx]}!! The expenses information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Expenses_Information"][idx]}!! The aid information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Aid_Information"][idx]}!! The application fee information for "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Application_Fee_Information"][idx]}!! The average net price information at "{formatted_df["Institution Name"][idx]}" is as follows: {formatted_df["Net_Price_Information"][idx]}!! {formatted_df['Options_Summary'][idx]}')
 
 formatted_df['Institution_Summary'] = summary
 print(f'Sample institution summary: {summary[3000]}')
 
+
 #%%
 total_length = sum(len(text) for text in summary)
 average = total_length / len(summary)
-print(f'\n AVERAGE LENGTH OF TEXT IN SUMMARY: {average}\n') #6101
+print(f'\n AVERAGE LENGTH OF TEXT IN SUMMARY: {average}\n') #6283
 #%%
 
 formatted_df.to_csv('../../../data/educational_institution_information.csv',index=False)
-# print(f'Data file ipeds_data.csv processed.')
+print(f'Data file ipeds_data.csv processed.')

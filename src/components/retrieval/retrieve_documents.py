@@ -27,8 +27,9 @@ def retrieve_documents(questions, embeddings, vector_path, collection_name, resu
     data = {
         'question': [],
         'source_doc': [],
+        'chunk':[],
         'context': [] ,
-        'kth_document': []# Replace with your actual content field
+        'kth_document': []
     }
 
     for query in questions:
@@ -38,7 +39,8 @@ def retrieve_documents(questions, embeddings, vector_path, collection_name, resu
         i = 1
         for result in answer:
             data['source_doc'].append(result.metadata["row"])  # Assuming the result has an 'id' attribute
-            data['question'].append(query)  # Assuming the result has a 'score' attribute
+            data['question'].append(query)
+            data['chunk'].append(result.metadata["chunk"])# Assuming the result has a 'score' attribute
             data['context'].append(result.page_content)
             data['kth_document'].append(i)
             i += 1

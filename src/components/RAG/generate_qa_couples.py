@@ -37,21 +37,18 @@ def generate_rag_validation(documents, repo_id, qa_prompt, n_questions, output_f
         return json.loads(response.decode())[0]["generated_text"]
 
     print(f"Generating {n_questions} QA couples...")
-
     outputs = []
     for sampled_context in tqdm(random.sample(documents, n_questions)):
         # Generate QA couple
         output_QA_couple = call_llm(llm_client, qa_prompt.format(context=sampled_context.page_content))
         try:
-            question = output_QA_couple.split("Factoid question: ")[-1].split("Answer: ")[0]
-            answer = output_QA_couple.split("Answer: ")[-1]
-            assert len(answer) < 300, "Answer is too long"
+            question = output_QA_couple.split("Factoid question: ")[-1].split("Answer: ")[0].strip()
             outputs.append(
                 {
                     "context": sampled_context.page_content,
+                    "chunk": sampled_context.metadata["chunk"],
                     "question": question,
-                    "source_doc": sampled_context.metadata["row"],
-                    "answer":answer,
+                    "source_doc": sampled_context.metadata["row"]
                 }
             )
         except:
