@@ -40,11 +40,26 @@ def doc_gen_list(text_list,doc_source,sep='.',splitter='CharacterTextSplitter',c
         chunker = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
         chunked_docs = chunker.split_documents(docs)
 
+    new_docs = []
+    curr_row = chunked_docs[0].metadata.get("row")
+    chunk_i = 1
+    for doc in chunked_docs:
+        row = doc.metadata.get("row")  # get the row of the current chunk
+        if row == curr_row:
+            new_docs.append(Document(page_content=doc.page_content, metadata={"source": doc_source,
+                                                                              "row": row, "chunk": chunk_i}))
+            chunk_i += 1
+        else:
+            curr_row += 1
+            chunk_i = 1
+
+    print(f'Len of documents: {len(new_docs)}')
+
     if output=='Generate':
-        return chunked_docs
+        return new_docs
     elif output=='Save':
         with open(document_obj_fp, "wb") as file:
-            pickle.dump(docs, file)
+            pickle.dump(new_docs, file)
             print(f'Documents have been exported to filepath: {document_obj_fp} \n')
 
 
@@ -85,14 +100,28 @@ def doc_gen_csv(csv_fp,sep='.',chunk_size=150,chunk_overlap=50,splitter='Charact
         chunker = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap).split_documents(docs)
         chunked_docs = chunker.split_documents(docs)
 
-    print(f'\n Here is a sample doc: {chunked_docs[0]}')
-    print(f'\n Here is the next sample doc: {chunked_docs[1]}')
+    new_docs = []
+    curr_row = chunked_docs[0].metadata.get("row")
+    chunk_i = 1
+    for doc in chunked_docs:
+        row = doc.metadata.get("row")  # get the row of the current chunk
+        if row == curr_row:
+            new_docs.append(Document(page_content=doc.page_content, metadata={"source": doc_source,
+                                                                              "row": row, "chunk": chunk_i}))
+            chunk_i += 1
+        else:
+            curr_row += 1
+            chunk_i = 1
 
+    print(f'\n Here is a sample doc: {new_docs[0]}')
+    print(f'\n Here is the next sample doc: {new_docs[1]}')
+
+    print(f'Len of documents: {len(new_docs)}')
     if output=='Generate':
-        return chunked_docs
+        return new_docs
     elif output=='Save':
         with open(document_obj_fp, "wb") as file:
-            pickle.dump(docs, file)
+            pickle.dump(new_docs, file)
             print(f'Documents have been exported to filepath: {document_obj_fp} \n')
 
 #%%
@@ -116,7 +145,7 @@ if __name__ == '__main__':
     import pandas as pd
     csv_fp = '../../../data/soc_employment_information.csv'
     df = pd.read_csv(csv_fp, usecols=['Occupation_Summary'])
-    doc_gen_list(text_list=df['Occupation_Summary'][:3],
+    doc_gen_list(text_list=df['Occupation_Summary'][:5],
                  doc_source='BLS Employment Data',
                  output='Save',
                  document_obj_fp='../../../data/sample_data/bls_sample.csv')
