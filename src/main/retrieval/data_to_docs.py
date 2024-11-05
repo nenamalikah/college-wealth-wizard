@@ -24,7 +24,7 @@ print(f'The file {ipeds_doc_fp} has been saved to {ipeds_fp}')
 
 #%%
 # 90% with 100 questions
-bls_fp = '../../../data/soc_employment_information2.csv'
+bls_fp = '../../../data/soc_employment_information.csv'
 bls_doc_fp = '../../../data/document_objs/bls_doc_obj.pkl'
 
 bls = pd.read_csv(bls_fp,usecols=['Occupation_Summary'])
