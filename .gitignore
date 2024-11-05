@@ -19,3 +19,6 @@ data/cip_soc_xwalk.csv
 data/cip_soc_crosswalk.xlsx
 data/cip_soc_crosswalk.xlsx
 src/main/RAG/agent_setup.py
+data/document_objs/bls_doc_obj.pkl
+data/document_objs/crosswalk_obj.pkl
+data/document_objs/ipeds_doc_obj.pkl
