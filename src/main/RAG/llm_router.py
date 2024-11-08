@@ -5,6 +5,10 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_huggingface import HuggingFaceEndpoint, HuggingFaceEmbeddings
 
+from typing_extensions import TypedDict
+from typing import List
+
+
 repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
 
 llm = HuggingFaceEndpoint(
@@ -40,7 +44,7 @@ cip_soc_retriever = cip_soc_store.as_retriever()
 
 import os
 from langchain_community.tools.tavily_search import TavilySearchResults
-os.environ['TAVILY_API_KEY'] = "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"
+os.environ['TAVILY_API_KEY'] = "API_KEY_HERE"
 web_search_tool = TavilySearchResults(k=5)
 
 rag_prompt = ChatPromptTemplate.from_template(rag_template)
@@ -50,9 +54,6 @@ rag_chain = rag_prompt | llm | StrOutputParser()
 question_router = router_template | llm | JsonOutputParser()
 
 #%%
-from typing_extensions import TypedDict
-from typing import List
-
 class GraphState(TypedDict):
     """
     Represents the state of our graph.
