@@ -95,41 +95,54 @@ def vstore_selection(state):
 
     chosen_vstore = source['datasource']
 
-    if all(item in ['IPEDs vector store', 'BLS vector store', 'CIP-SOC vector store'] for item in chosen_vstore):
-        print("---ROUTE QUESTION TO IPEDS, CIP-SOC, & BLS VECTOR STORES---")
+    print(f'---QUESTION ROUTED TO {chosen_vstore}---')
+
+    if chosen_vstore == ["IPEDs vector store"]:
+        print("---RETRIEVE DOCUMENTS FROM IPEDS VECTOR STORE---")
+        documents = ipeds_retriever.invoke(question)
+        return {"documents": [documents], "question": question}
+
+    elif chosen_vstore == ["BLS vector store"]:
+        print("---RETRIEVE DOCUMENTS FROM BLS VECTOR STORE---")
+        documents = bls_retriever.invoke(question)
+        return {"documents": [documents], "question": question}
+
+    elif chosen_vstore == ["CIP_SOC vector store"]:
+        print("---RETRIEVE DOCUMENTS FROM CIP_SOC VECTOR STORE---")
+        documents = cip_soc_retriever.invoke(question)
+        return {"documents": [documents], "question": question}
+
+    elif all(item in ['IPEDs vector store', 'BLS vector store', 'CIP-SOC vector store'] for item in chosen_vstore):
+        # print("---ROUTE QUESTION TO IPEDS, CIP-SOC, & BLS VECTOR STORES---")
         runnable = RunnableParallel(ipeds_documents=ipeds_retriever, bls_documents=bls_retriever, cip_soc_documents=cip_soc_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM IPEDS, CIP-SOC, & BLS VECTOR STORES---")
         return {"documents": [answer], "question": question}
 
     elif all(item in ['IPEDs vector store', 'BLS vector store'] for item in chosen_vstore):
-        print("---ROUTE QUESTION TO IPEDS & BLS VECTOR STORES---")
+        # print("---ROUTE QUESTION TO IPEDS & BLS VECTOR STORES---")
         runnable = RunnableParallel(ipeds_documents=ipeds_retriever, bls_documents=bls_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM IPEDS & BLS VECTOR STORES---")
         return {"documents": [answer], "question": question}
 
     elif all(item in ['BLS vector store','CIP-SOC vector store'] for item in chosen_vstore):
-        print("---ROUTE QUESTION TO CIP-SOC & BLS VECTOR STORES---")
+        # print("---ROUTE QUESTION TO CIP-SOC & BLS VECTOR STORES---")
         runnable = RunnableParallel(cip_soc_documents=cip_soc_retriever, bls_documents=bls_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM CIP-SOC & BLS VECTOR STORES---")
         return {"documents": [answer], "question": question}
 
-    elif chosen_vstore == ["IPEDs vector store"]:
-        print("---ROUTE QUESTION TO IPEDS---")
-        documents = ipeds_retriever.invoke(question)
-        return {"documents": [documents], "question": question}
+    elif all(item in ['IPEDs vector store','CIP-SOC vector store'] for item in chosen_vstore):
+        # print("---ROUTE QUESTION TO CIP-SOC & BLS VECTOR STORES---")
+        runnable = RunnableParallel(cip_soc_documents=cip_soc_retriever, bls_documents=bls_retriever)
+        answer = runnable.invoke(state['question'])
+        print("---RETRIEVE DOCUMENTS FROM CIP-SOC & BLS VECTOR STORES---")
+        return {"documents": [answer], "question": question}
 
-    elif chosen_vstore == ["BLS vector store"]:
-        print("---ROUTE QUESTION TO BLS vector store---")
-        documents = bls_retriever.invoke(question)
-        return {"documents": [documents], "question": question}
 
-    elif chosen_vstore == ["CIP_SOC vector store"]:
-        print("---ROUTE QUESTION TO CIP_SOC vector store---")
-        documents = cip_soc_retriever.invoke(question)
-        return {"documents": [documents], "question": question}
+
+
 
 def entry_agent(state):
     answer = entry_router_agent(query=state["question"],
@@ -268,6 +281,8 @@ def choose_secondary_source(state):
     else:
         return 'cs_api'
 # need to create an assistant_holder node
+
+
 workflow.add_conditional_edges("assistant_agent",choose_secondary_source)
 
 
@@ -278,26 +293,9 @@ workflow.add_edge("generate", END)
 
 # Compile
 graph = workflow.compile()
-#%%
-
-from IPython.display import Image, display
-from PIL import Image as PILImage
-import io
-
-# Get the image as a byte stream (PNG image)
-img_bytes = graph.get_graph().draw_mermaid_png()
-
-# Convert the byte stream to an Image object
-img = PILImage.open(io.BytesIO(img_bytes))
-
-# Save the image to a file (for example, "graph_image.png")
-img.save('graph_image.png')
-
-# Optionally, display it
-display(Image('graph_image.png'))
 
 #%%
-question = "What CIP codes are associated with a career in data science?"
+question = "What jobs are associated with a degree in data science?"
 
 response = graph.invoke({"question": question})
 print(response)

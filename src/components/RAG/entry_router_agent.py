@@ -27,7 +27,9 @@ def entry_router_agent(repo_id, query):
     )
 
     router_template = PromptTemplate(
-        template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> You are an expert at routing a user question to a series of vector stores or to a routing assistant. For questions on college tuition, financial aid, collegiate expenses, mean average wages, salary, total employment for a given occupation, fields of study (CIP codes/titles) and their associated occupations (SOC codes/titles), use the vector stores. You do not need to be stringent with the keywords in the question related to these topics. Otherwise, route the query to the routing assistant. 
+        template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> You are an expert at routing a user question to a series of vector stores or to a routing assistant. For questions on college tuition, financial aid and grants, collegiate expenses, mean average wages for a given occupation, salary for a given occupation, total employment for a given occupation, fields of study (CIP codes/titles) and their associated occupations (SOC codes/titles), use the vector stores. You do not need to be stringent with the keywords in the question related to these topics. 
+        
+        For questions about admission rates, post-graduation salary, post-graduation earnings, student loan debt payments, student loan default rates for educational institutions, and other questions, route the query to the routing assistant. 
 
         Based on the question, return a dictionary with a single key 'datasource' and one of the following choices: 'vector store' or 'routing assistant'. Ensure that the output is in proper JSON format, with **double quotes** for keys and values. 
         
