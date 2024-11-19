@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from components.RAG.router_agent import router_agent
+from components.RAG.vstore_router_agent import vstore_router_agent
 
 #%%
 def test_llm_router_prompt(repo_id):
@@ -13,7 +13,7 @@ def test_llm_router_prompt(repo_id):
 
     print('The LLM will now route your query to the correct data source.')
 
-    answer = router_agent(repo_id, query)
+    answer = vstore_router_agent(repo_id, query)
 
     if all(item in answer.get('datasource') for item in source):
         print(f'\nTEST PASSED: User input of source "{source}" equals LLM output of "{answer.get("datasource")}".')
