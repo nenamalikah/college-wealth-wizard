@@ -166,9 +166,9 @@ def evaluator(state):
 
 def router_assistant(state):
     print(f'---ASSISTANT ROUTING AGENT ANALYZING QUERY---')
-    answer = routing_assistant_agent(query=state["question"],
+    question = state["question"]
+    answer = routing_assistant_agent(query=question,
                             repo_id="mistralai/Mistral-7B-Instruct-v0.2")
-
 
     print(f'--- ASSISTANT ROUTING AGENT SENDING QUERY TO "{answer["datasource"]}"---')
     return {"next_step": answer["datasource"]}
@@ -266,12 +266,13 @@ workflow.add_edge("vstore_agent", "evaluator_agent")
 
 def evaluation(state):
     print(f'---NEXT STEP IS {state["next_step"]}---')
-    if state['next_step'] == 'yes':
-        return 'generate'
-    else:
+    if state['next_step'] == 'no':
         return 'assistant_agent'
+    else:
+        return 'generate'
 # While at the evaluator agent, generate an answer or go to the router assistant for more information
-workflow.add_conditional_edges("evaluator_agent", evaluation) # do not need nodes for router agents, only the routing functions
+workflow.add_conditional_edges("evaluator_agent", evaluation, {'assistant_agent':'assistant_agent',
+                                                               'generate':'generate'}) # do not need nodes for router agents, only the routing functions
 
 
 def choose_secondary_source(state):
