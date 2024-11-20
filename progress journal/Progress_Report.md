@@ -162,12 +162,32 @@ https://www.markdownguide.org/cheat-sheet/
     - Current graph structure
     - Rechunking of BLS data
     - Conditional edges and deciding to generate
+    - Contribution for paper is with langgraph, multi-agent rag 
+    - Add in literature review that multi-agent rag hasn't been applied to this domain 
 
-- Action Items:
+- **Plan of Action: Action Items**
 
 * [ ] Test that generated answers from LLM are from vector stores and not LLM itself
 * [ ] Read about RAG for Related Work in Report
-* [ ] Add testing scripts for RAG agents 
+* [ ] Add testing scripts for RAG agents  
+
+
+- **Plan of Action: Results**
+- [ ] get results of each agent separately (if possible)
+- [ ] get retrieval results
+- *specify langgraph methodology and method*
+  - [ ] illustrate cases that graph worked
+  - [ ] illustrate cases that graph did not work 
+
+
+- **Plan of Action: Timeline**
+  - November 26th: complete all of the coding for the project
+  - November 26th - December 3rd: clean up the project repository, start writing the paper
+  - December 3rd: present draft of paper in class 
+  - December 10th: final presentation, submit paper to journal, ensure professor receives email from the journal
+    - streamlit demo
+    - https://link.springer.com/journal/521
+
 
 #### Current Application Design
 ![application_diagram.png](application_diagram.png)
