@@ -35,8 +35,8 @@ cip_soc_retriever = cip_soc_store.as_retriever()
 #%%
 # Set up API keys and Additional Tools
 
-os.environ['TAVILY_API_KEY'] = "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"
-api_key = 'CeGhuqvlvZmiC0D1ePV6OIBV3XwExBoT6eC3mdYT'
+tavily_key = os.getenv("TAVILY_API_KEY")
+cs_key = os.getenv("CS_API_KEY")
 web_search_tool = TavilySearchResults(k=5)
 
 #%%
@@ -70,6 +70,7 @@ class GraphState(TypedDict):
     question: str
     generation: str
     documents: Annotated[list[str], add]
+    sources: Annotated[list[str], add]
     next_step: str
 
 
@@ -100,45 +101,45 @@ def vstore_selection(state):
     if chosen_vstore == ["IPEDs vector store"]:
         print("---RETRIEVE DOCUMENTS FROM IPEDS VECTOR STORE---")
         documents = ipeds_retriever.invoke(question)
-        return {"documents": [documents], "question": question}
+        return {"documents": [documents], "question": question, "sources":[chosen_vstore]}
 
     elif chosen_vstore == ["BLS vector store"]:
         print("---RETRIEVE DOCUMENTS FROM BLS VECTOR STORE---")
         documents = bls_retriever.invoke(question)
-        return {"documents": [documents], "question": question}
+        return {"documents": [documents], "question": question, "sources":[chosen_vstore]}
 
     elif chosen_vstore == ["CIP_SOC vector store"]:
         print("---RETRIEVE DOCUMENTS FROM CIP_SOC VECTOR STORE---")
         documents = cip_soc_retriever.invoke(question)
-        return {"documents": [documents], "question": question}
+        return {"documents": [documents], "question": question, "sources":[chosen_vstore]}
 
     elif all(item in ['IPEDs vector store', 'BLS vector store', 'CIP-SOC vector store'] for item in chosen_vstore):
         # print("---ROUTE QUESTION TO IPEDS, CIP-SOC, & BLS VECTOR STORES---")
         runnable = RunnableParallel(ipeds_documents=ipeds_retriever, bls_documents=bls_retriever, cip_soc_documents=cip_soc_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM IPEDS, CIP-SOC, & BLS VECTOR STORES---")
-        return {"documents": [answer], "question": question}
+        return {"documents": [answer], "question": question, "sources":[chosen_vstore]}
 
     elif all(item in ['IPEDs vector store', 'BLS vector store'] for item in chosen_vstore):
         # print("---ROUTE QUESTION TO IPEDS & BLS VECTOR STORES---")
         runnable = RunnableParallel(ipeds_documents=ipeds_retriever, bls_documents=bls_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM IPEDS & BLS VECTOR STORES---")
-        return {"documents": [answer], "question": question}
+        return {"documents": [answer], "question": question, "sources":[chosen_vstore]}
 
     elif all(item in ['BLS vector store','CIP-SOC vector store'] for item in chosen_vstore):
         # print("---ROUTE QUESTION TO CIP-SOC & BLS VECTOR STORES---")
         runnable = RunnableParallel(cip_soc_documents=cip_soc_retriever, bls_documents=bls_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM CIP-SOC & BLS VECTOR STORES---")
-        return {"documents": [answer], "question": question}
+        return {"documents": [answer], "question": question, "sources":[chosen_vstore]}
 
     elif all(item in ['IPEDs vector store','CIP-SOC vector store'] for item in chosen_vstore):
         # print("---ROUTE QUESTION TO CIP-SOC & BLS VECTOR STORES---")
         runnable = RunnableParallel(cip_soc_documents=cip_soc_retriever, bls_documents=bls_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM CIP-SOC & BLS VECTOR STORES---")
-        return {"documents": [answer], "question": question}
+        return {"documents": [answer], "question": question, "sources":[chosen_vstore]}
 
 
 
@@ -186,7 +187,7 @@ def api_agent(state):
                      repo_id="mistralai/Mistral-7B-Instruct-v0.2")
     print(f'---CONTACTING API WITH PARAMETERS---')
     answer = api_call_tool(param_dict=param_dict,
-                  API_KEY_HERE=api_key)
+                  API_KEY_HERE=cs_key)
 
     # Ensure 'documents' is initialized in state if it doesn't exist
     documents = state.get("documents", [])
@@ -196,7 +197,7 @@ def api_agent(state):
     else:
         documents = [answer]
 
-    return {"documents": documents, "question": question}
+    return {"documents": documents, "question": question, "sources":['College Scorecard API']}
 
 from langchain.schema import Document
 def web_search(state):
@@ -225,7 +226,7 @@ def web_search(state):
     web_results = Document(page_content=web_results)
     documents.append(web_results)
     state["documents"] = documents  # Update state with the modified documents list
-    return {"documents": [documents], "question": question}
+    return {"documents": [documents], "question": question, "sources":['College Scorecard API']}
 
 def generate_answer(state):
     """
@@ -277,15 +278,22 @@ workflow.add_conditional_edges("evaluator_agent", evaluation, {'assistant_agent'
 
 def choose_secondary_source(state):
     print(f'---NEXT STEP IS {state["next_step"]}---')
-    if state['next_step'] == 'web_search':
-        return 'tavily_search'
-    else:
+    if state['next_step'] == 'assistant_agent':
         return 'cs_api'
+    else:
+        return 'tavily_search'
 # need to create an assistant_holder node
 
 
 workflow.add_conditional_edges("assistant_agent",choose_secondary_source)
 
+def api_evaluation(state):
+    print(f'---NEXT STEP IS {state["next_step"]}---')
+    if state['next_step'] == 'web_search':
+        return 'tavily_search'
+    else:
+        return 'generate'
+workflow.add_conditional_edges("cs_api",api_evaluation)
 
 workflow.add_edge("tavily_search", "generate")
 workflow.add_edge("cs_api", "generate")
@@ -296,7 +304,7 @@ workflow.add_edge("generate", END)
 graph = workflow.compile()
 
 #%%
-question = "What jobs are associated with a degree in data science?"
+question = "How much debt to students at Stanford University accumulate?"
 
 response = graph.invoke({"question": question})
 print(response)
