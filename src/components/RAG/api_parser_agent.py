@@ -1,7 +1,9 @@
 from langchain.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEndpoint
 
-from langchain_core.output_parsers import JsonOutputParser, PydanticOutputParser
+from langchain_core.output_parsers import JsonOutputParser
+from langchain.output_parsers import StructuredOutputParser,ResponseSchema
+
 from pydantic import BaseModel, Field
 from typing import List, Dict
 
@@ -12,14 +14,21 @@ from json import loads
 
 
 # %%
-def api_parser_agent(query, pydantic_obj, repo_id):
+def api_parser_agent(query, repo_id):
     """Parses a user query into API parameters using an LLM."""
 
     llm = HuggingFaceEndpoint(
         repo_id=repo_id
     )
 
-    parser = PydanticOutputParser(pydantic_object=pydantic_obj)
+    response_schemas = [
+        ResponseSchema(name="filters",
+                       description="the filters to use for the API request",type='dict'),
+        ResponseSchema(name="fields",
+                       description="list of fields from the college scorecard api to include",type='list'),
+    ]
+    output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
+    # parser = PydanticOutputParser(pydantic_object=pydantic_obj)
     prompt = PromptTemplate(template="""
     You are an API expert for the College Scorecard API.
 
@@ -44,7 +53,7 @@ def api_parser_agent(query, pydantic_obj, repo_id):
     Here are the formatting instructions: {format_instructions}
     Here is the user query: {query}
     """, input_variables=["query"],
-                            partial_variables={"format_instructions": parser.get_format_instructions()})
+                            partial_variables={"format_instructions": output_parser.get_format_instructions()})
     query_router = prompt | llm | JsonOutputParser()
 
     answer = query_router.invoke(query)
