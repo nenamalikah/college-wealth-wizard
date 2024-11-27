@@ -1,53 +1,54 @@
 #%%
-import os
 from langchain.schema import Document
 from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_community.vectorstores import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_core.runnables import RunnableParallel
 
 from pydantic import BaseModel, Field
 from typing import List, Dict
 from urllib.request import urlopen
 from json import loads
 
-from langchain_community.vectorstores import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_core.runnables import RunnableParallel
-
+import os
 import sys
 sys.path.append('../')
 from components.RAG.agents import vstore_router_agent
 from components.RAG.agents import api_parser_agent
+
 #%%
-# Set up API keys and Additional Tools
-
-
-
+#---------- SPECIFY BASE DIRECTORY ----------
+base_dir = os.path.abspath(os.path.dirname(__file__))
 
 #%%
 # ---------- DEFINE VECTOR STORE RETRIEVAL TOOLS ----------
-
-embeddings = HuggingFaceEmbeddings(model_name = 'BAAI/bge-large-en-v1.5')
-ipeds_store = Chroma(embedding_function=embeddings,persist_directory='../../../data/vector_store/data_store',collection_name='IPEDS_Education_Information')
-ipeds_retriever = ipeds_store.as_retriever(search_kwargs={"k": 3})
-
-bls_store = Chroma(embedding_function=embeddings,persist_directory='../../../data/vector_store/data_store',collection_name='BLS_Occupational_Information')
-bls_retriever = bls_store.as_retriever(search_kwargs={"k": 5})
-
-cip_soc_store = Chroma(embedding_function=embeddings,persist_directory='../../../data/vector_store/data_store',collection_name='CIP_SOC_Associations')
-cip_soc_retriever = cip_soc_store.as_retriever(search_kwargs={"k": 5})
-
 def vstore_selection(state):
     """
-    Route question to corresponding RAG.
+    The following tool invokes the vector store router agent to direct the query to a vector store and pull documents from the selected vector store(s).
 
     Args:
-        state (dict): The current graph state
+        state (dict): The current graph state. The function utilizes the "question' key.
 
     Returns:
-        str: Next node to call
+        state (dict): The graph state with the retrieved documents, name of chosen vector store(s), and original user query.
     """
     class Vstore(BaseModel):
         datasource: Dict[str, List[str]] = Field(description="the vector stores to use for the user query")
 
+    persist_directory = os.path.join(base_dir, '../../../data/vector_store/data_store')
+
+    embeddings = HuggingFaceEmbeddings(model_name='BAAI/bge-large-en-v1.5')
+    ipeds_store = Chroma(embedding_function=embeddings, persist_directory=persist_directory,
+                         collection_name='IPEDS_Education_Information')
+    ipeds_retriever = ipeds_store.as_retriever(search_kwargs={"k": 3})
+
+    bls_store = Chroma(embedding_function=embeddings, persist_directory=persist_directory,
+                       collection_name='BLS_Occupational_Information')
+    bls_retriever = bls_store.as_retriever(search_kwargs={"k": 5})
+
+    cip_soc_store = Chroma(embedding_function=embeddings, persist_directory=persist_directory,
+                           collection_name='CIP_SOC_Associations')
+    cip_soc_retriever = cip_soc_store.as_retriever(search_kwargs={"k": 5})
 
     print("---ROUTE QUESTION---")
     question = state["question"]
@@ -61,45 +62,45 @@ def vstore_selection(state):
     if chosen_vstore == ["IPEDs vector store"]:
         print("---RETRIEVE DOCUMENTS FROM IPEDS VECTOR STORE---")
         documents = ipeds_retriever.invoke(question)
-        return {"documents": [documents], "question": question, "sources":[chosen_vstore]}
+        return {"documents": documents, "question": question, "sources":chosen_vstore}
 
     elif chosen_vstore == ["BLS vector store"]:
         print("---RETRIEVE DOCUMENTS FROM BLS VECTOR STORE---")
         documents = bls_retriever.invoke(question)
-        return {"documents": [documents], "question": question, "sources":[chosen_vstore]}
+        return {"documents": documents, "question": question, "sources":chosen_vstore}
 
     elif chosen_vstore == ["CIP_SOC vector store"]:
         print("---RETRIEVE DOCUMENTS FROM CIP_SOC VECTOR STORE---")
         documents = cip_soc_retriever.invoke(question)
-        return {"documents": [documents], "question": question, "sources":[chosen_vstore]}
+        return {"documents": documents, "question": question, "sources":chosen_vstore}
 
     elif all(item in ['IPEDs vector store', 'BLS vector store', 'CIP-SOC vector store'] for item in chosen_vstore):
         # print("---ROUTE QUESTION TO IPEDS, CIP-SOC, & BLS VECTOR STORES---")
         runnable = RunnableParallel(ipeds_documents=ipeds_retriever, bls_documents=bls_retriever, cip_soc_documents=cip_soc_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM IPEDS, CIP-SOC, & BLS VECTOR STORES---")
-        return {"documents": [answer], "question": question, "sources":[chosen_vstore]}
+        return {"documents": answer, "question": question, "sources":[chosen_vstore]}
 
     elif all(item in ['IPEDs vector store', 'BLS vector store'] for item in chosen_vstore):
         # print("---ROUTE QUESTION TO IPEDS & BLS VECTOR STORES---")
         runnable = RunnableParallel(ipeds_documents=ipeds_retriever, bls_documents=bls_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM IPEDS & BLS VECTOR STORES---")
-        return {"documents": [answer], "question": question, "sources":[chosen_vstore]}
+        return {"documents": answer, "question": question, "sources":[chosen_vstore]}
 
     elif all(item in ['BLS vector store','CIP-SOC vector store'] for item in chosen_vstore):
         # print("---ROUTE QUESTION TO CIP-SOC & BLS VECTOR STORES---")
         runnable = RunnableParallel(cip_soc_documents=cip_soc_retriever, bls_documents=bls_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM CIP-SOC & BLS VECTOR STORES---")
-        return {"documents": [answer], "question": question, "sources":[chosen_vstore]}
+        return {"documents": answer, "question": question, "sources":[chosen_vstore]}
 
     elif all(item in ['IPEDs vector store','CIP-SOC vector store'] for item in chosen_vstore):
         # print("---ROUTE QUESTION TO CIP-SOC & BLS VECTOR STORES---")
         runnable = RunnableParallel(cip_soc_documents=cip_soc_retriever, bls_documents=bls_retriever)
         answer = runnable.invoke(state['question'])
         print("---RETRIEVE DOCUMENTS FROM CIP-SOC & BLS VECTOR STORES---")
-        return {"documents": [answer], "question": question, "sources":[chosen_vstore]}
+        return {"documents": answer, "question": question, "sources":[chosen_vstore]}
 
 
 #%%
@@ -107,13 +108,13 @@ def vstore_selection(state):
 
 def web_search(state):
     """
-    Web search based based on the question
+    A tool to conduct a web search based on the user query.
 
     Args:
-        state (dict): The current graph state
+        state (dict): The current graph state. Utilizes the state "question" key.
 
     Returns:
-        state (dict): Appended web results to documents
+        state (dict): The graph state with the retrieved documents, original user query, and sources used to answer the query.
     """
     tavily_key = os.getenv("TAVILY_API_KEY")
     print("---WEB SEARCH---")
