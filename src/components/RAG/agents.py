@@ -20,7 +20,7 @@ def entry_router_agent(repo_id, query):
 
     response_schemas = [
         ResponseSchema(name="datasource",
-                       description="whether the provided context should be sent to 'vector stores', which contain information on college expenses, average salary and wages, CIP codes, and SOC codes, or if should be sent to the 'routing assistant'."),
+                       description="whether the provided context should be sent to 'vector store', which contain information on college expenses, average salary and wages, CIP codes, and SOC codes, or if should be sent to the 'routing assistant'."),
     ]
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
     llm = HuggingFaceEndpoint(
