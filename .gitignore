@@ -23,3 +23,4 @@ data/document_objs/bls_doc_obj.pkl
 data/document_objs/crosswalk_obj.pkl
 data/document_objs/ipeds_doc_obj.pkl
 src/main/scorecard_api.py
+src/tests/query_parsing_cipsoc.xlsx
