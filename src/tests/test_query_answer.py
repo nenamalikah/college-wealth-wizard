@@ -57,14 +57,11 @@ Here is the query: {query}
 
 def test_query_answer(questions, repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1"):
 
-    # Load a sentence embedding model
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-
     data = {'Query':[],
             'Key Aspects': [],
             'Sources':[],
-            'Generation':[],
-            'Score':[]}
+            'Documents':[],
+            'Generation':[]}
     tavily_key = os.getenv("TAVILY_API_KEY")
     cs_key = os.getenv("CS_API_KEY")
     for query in questions:
@@ -76,24 +73,15 @@ def test_query_answer(questions, repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1")
 
                 response = app(query)
                 generation = response['generation']
-                # Encode aspects and response
-                key_aspects_embeddings = model.encode(key_aspects['keys'], convert_to_tensor=True)
-                generation_embedding = model.encode(generation, convert_to_tensor=True)
-                print('\n\n------CALCULATING SIMILARITY SCORES------\n\n')
-                # Calculate cosine similarity
-                scores = util.cos_sim(generation_embedding, key_aspects_embeddings)
-                average_score = scores.mean().item()
-                data['Score'].append(average_score)
                 data['Generation'].append(generation)
                 data['Key Aspects'].append(key_aspects['keys'])
                 data['Query'].append(query)
                 data['Sources'].append(response['sources'])
+                data['Documents'].append(response['documents'])
 
-                print(f'\n\n------SIMILARITY SCORE: {average_score}------\n\n')
             except:
-                print('ERROR PROCESSING QUERY \n\n')
+                print(f'ERROR PROCESSING QUERY: {query} \n\n')
                 continue
-
 
     df = pd.DataFrame(data)
     print(df.head())
@@ -104,6 +92,7 @@ def test_query_answer(questions, repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1")
 
 #%%
 if __name__ == '__main__':
+
     bls_questions = [
     "What is the mean wage for a software engineer?",
     "What is the SOC code for a teacher?",
@@ -129,13 +118,15 @@ if __name__ == '__main__':
     "What is the SOC code for an HR specialist?",
     "What is the total employment of truck drivers in the US?",
     "What is the mean annual salary for a veterinarian in the US?",
-    "What is the mean wage for an aerospace engineer?"]
+    "What is the mean wage for an aerospace engineer?",
+    'How much do auto mechanics make?',
+    'How much is the average salary of web developers?']
     print('\n\n-----BEGINNING BLS TEST------\n\n')
 
     df_bls = test_query_answer(bls_questions)
     print(df_bls.head())
 
-    df_bls.to_excel('query_parsing_bls.xlsx')
+    df_bls.to_excel('bls_app_test.xlsx')
     print('\n\n-----BLS TEST COMPLETE------\n\n')
 
     print('\n\n-----BEGINNING IPEDs TEST------\n\n')
@@ -165,12 +156,15 @@ if __name__ == '__main__':
     "What fields of study are offered at Boston University?",
     "How much are room and board expenses at the University of North Carolina at Chapel Hill?",
     "How much is the tuition at Carnegie Mellon University?",
-    "What is the average net price at Purdue University?"]
+    "What is the average net price at Purdue University?",
+    "What CIP codes are offered at Emory University?",
+    'What is the tuition at Georgia Institue of Technology?',
+    'What is the average net price at Tufts University?']
 
     df_ipeds = test_query_answer(ipeds_questions)
     print(df_ipeds.head())
 
-    df_ipeds.to_excel('query_parsing_ipeds.xlsx')
+    df_ipeds.to_excel('ipeds_app_test.xlsx')
     print('\n\n-----IPEDS TEST COMPLETE------\n\n')
     print('\n\n-----BEGINNING CIP-SOC TEST------\n\n')
 
@@ -204,7 +198,7 @@ if __name__ == '__main__':
     df_cip_soc = test_query_answer(cip_soc_questions)
     print(df_cip_soc.head())
 
-    df_cip_soc.to_excel('query_parsing_cipsoc.xlsx')
+    df_cip_soc.to_excel('cipsoc_app_test.xlsx')
     print('\n\n-----CIP-SOC TEST COMPLETE------\n\n')
 
     print('\n\n-----BEGINNING COLLEGE SCORECARD TEST------\n\n')
@@ -233,11 +227,23 @@ if __name__ == '__main__':
     "What is the salary of students at Carnegie Mellon University 1 year after graduation?",
     "How much are the monthly debt payments for students who graduated from the University of Southern California?",
     "How much student loan debt do graduates of the University of Washington have?",
-    "What is the salary of students at Vanderbilt University 4 years after graduation?"]
+    "What is the salary of students at Vanderbilt University 4 years after graduation?",
+    "How much do students at the University of Texas Dallas make 6 years after entering school?",
+    "What is the admissions rate for Kansas State University?",
+    "I am a student at Massachusetts Institute of Technology. What salary can I expect 1 year after graduation?",
+    "What is the admissions rate at Duke University?",
+    'What is the average salary of graduates of New York University?',
+    'What are the monthly student loan debt payments for graduates of Carnegie Mellon University?',
+    'How much do graduates of Dartmouth College make a year after graduation?',
+    'How much do students at Emory University make 4 years after graduating?',
+    '6 years after starting college, how much do graduates of John Hopkins Univesity make?',
+    '6 years after entering school, how much can a graduate of Northwestern University expect to make?',
+    'What is the admissions rate of Duke University? Is it competitive?',
+    'Does Princeton University have a low or high admissions rate?']
 
     df_cs = test_query_answer(cs_questions)
     print(df_cs.head())
 
-    df_cs.to_excel('query_parsing_cs.xlsx')
+    df_cs.to_excel('csapi_app_test.xlsx')
     print('\n\n-----COLLEGE SCORECARD TEST COMPLETE------\n\n')
 
