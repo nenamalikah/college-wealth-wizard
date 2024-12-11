@@ -2,7 +2,7 @@
 import pandas as pd
 import sys
 sys.path.append('../')
-from main.app import app
+from main.cw_app import cw_app
 
 #%%
 def test_graph_sources(expected_sources, test_type):
@@ -20,7 +20,7 @@ def test_graph_sources(expected_sources, test_type):
 
     if test_type == 'print':
         for question in expected_sources.keys():
-            response = app(question)
+            response = cw_app(question)
             graph_source = response['sources']
 
             if all(item in graph_source for item in expected_sources[question]):
@@ -35,7 +35,7 @@ def test_graph_sources(expected_sources, test_type):
         graph_sources = []
         scores = []
         for question in expected_sources.keys():
-            response = app(question)
+            response = cw_app(question)
             graph_source = response['sources']
             graph_sources.append(graph_source)
 

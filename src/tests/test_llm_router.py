@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from components.RAG.vstore_router_agent import vstore_router_agent
+from components.RAG.agents import vstore_router_agent
 
 #%%
 def test_llm_router_prompt(repo_id):

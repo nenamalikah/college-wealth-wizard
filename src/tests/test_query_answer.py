@@ -9,7 +9,7 @@ import os
 
 import sys
 sys.path.append('../')
-from main.app import app
+from main.cw_app import cw_app
 
 #%%
 def query_key_parser(query, repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1"):
@@ -71,7 +71,7 @@ def test_query_answer(questions, repo_id="mistralai/Mixtral-8x7B-Instruct-v0.1")
                 key_aspects = query_key_parser(repo_id = repo_id, query = query)
                 print('\n\n------GENERATING LLM RESPONSE------\n\n')
 
-                response = app(query)
+                response = cw_app(query)
                 generation = response['generation']
                 data['Generation'].append(generation)
                 data['Key Aspects'].append(key_aspects['keys'])

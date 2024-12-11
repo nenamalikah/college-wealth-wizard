@@ -2,7 +2,7 @@ import sys
 
 sys.path.append('../')
 from components.preprocess.generate_documents import load_documents
-from components.RAG.evaluator_agent import evaluator_agent
+from components.RAG.agents import evaluator_agent
 
 #%%
 def test_llm_evaluator_agent(question, context, relevance, repo_id):
