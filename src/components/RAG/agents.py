@@ -4,6 +4,7 @@ from langchain_huggingface import HuggingFaceEndpoint
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+import os
 # %%
 def entry_router_agent(repo_id, query):
     """
@@ -65,11 +66,11 @@ def vstore_router_agent(repo_id, query, pydantic_obj):
     )
 
     router_template = PromptTemplate(
-        template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> You are an expert at routing a user question to a series of vector stores. For questions on tuition, grants and scholarships, financial aid packages, room and board, books, offered fields of study, and other collegiate expenses at colleges and universities, use the IPEDs vector store. 
+        template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> You are an expert at routing a user question to a series of vector stores. For questions on tuition, grants and scholarships, financial aid packages, room and board, books, offered fields of study or CIP codes for a given institution, and other collegiate expenses at colleges and universities, use the IPEDs vector store. 
 
-        For questions related to salary, mean average wages, total employment, and SOC codes of specific occupations, use the BLS vector store. 
+        For questions related to salary, mean average wages, mean average salaries, total employment, and SOC codes of specific occupations, use the BLS vector store. 
 
-        For questions about fields of study (CIP codes/titles) and their associated occupations (SOC codes/titles), use the CIP_SOC vector store. You do not need to be stringent with the keywords in the question related to these topics. 
+        For questions about fields of study (CIP codes/titles) and their associated occupations (SOC codes/titles) WITHOUT reference to a specific educational institution, use the CIP_SOC vector store. You do not need to be stringent with the keywords in the question related to these topics. 
 
         Based on the question, return a dictionary with a single key 'datasource' and a list as the value containing one or more of the following choices: 'IPEDs vector store', 'BLS vector store', or 'CIP_SOC vector store'. Ensure that the output is in proper JSON format, with **double quotes** for keys and values. 
 
@@ -93,7 +94,7 @@ def evaluator_agent(question, context, repo_id):
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
 
     evaluator_template = PromptTemplate(
-        template="""You are an expert at evaluating whether provided context can be used to answer a user query. If the context is relevant, you generate an answer, Otherwise, you pass the query to the routing assistant.
+        template="""You are an expert at evaluating whether provided context can be used to answer a user query. If the context is relevant, you generate an answer. Otherwise, you pass the query to the routing assistant.
 
          Based on the user query, return a SINGLE JSON object with a key called 'relevance'. If the provided context provides sufficient information to answer the user question, choose 'generate' as the dictionary value. Otherwise, choose 'assistant_agent'.\n
 
@@ -204,18 +205,22 @@ def generate_answer(state):
     """
     # Declare the RAG template
     repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
-
+    HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
     llm = HuggingFaceEndpoint(
-        repo_id=repo_id)
+        repo_id=repo_id,
+    huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN)
 
-    rag_template = """Answer the question based only on the following contexts:
-    {context}
+    prompt = PromptTemplate(template="""You are an expert at providing direct, user-friendly answers to questions. Based ONLY ON the following context, provide a clear and concise user-friendly answer to the question. Do not include extra labels or headings before or after the answer. Here is the context: {context}
+    Here is the question: {question}""", input_variables=["question", "query"])
 
-    Question: {question}
-    """
-
-    rag_prompt = ChatPromptTemplate.from_template(rag_template)
-    rag_chain = rag_prompt | llm | StrOutputParser()
+    # rag_template = """You are an expert at providing direct, user-friendly answers to questions. Based ONLY ON the following context, provide a clear and concise user-friendly answer to the question. Do not include extra labels or headings before or after the answer. Here is the context:
+    # {context}
+    #
+    # Here is the question: {question}
+    # """
+    #
+    # rag_prompt = ChatPromptTemplate.from_template(rag_template)
+    rag_chain = prompt | llm | StrOutputParser()
 
     print("---GENERATE---")
     question = state["question"]

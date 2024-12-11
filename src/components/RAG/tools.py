@@ -40,7 +40,7 @@ def vstore_selection(state):
     embeddings = HuggingFaceEmbeddings(model_name='BAAI/bge-large-en-v1.5')
     ipeds_store = Chroma(embedding_function=embeddings, persist_directory=persist_directory,
                          collection_name='IPEDS_Education_Information')
-    ipeds_retriever = ipeds_store.as_retriever(search_kwargs={"k": 3})
+    ipeds_retriever = ipeds_store.as_retriever(search_kwargs={"k": 5})
 
     bls_store = Chroma(embedding_function=embeddings, persist_directory=persist_directory,
                        collection_name='BLS_Occupational_Information')
